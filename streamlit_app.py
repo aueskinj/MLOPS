@@ -5,12 +5,16 @@ Last Modified: 2025-11-17
 
 A production-grade ML application for predicting California housing prices
 using a trained K-Nearest Neighbors pipeline.
+
+Optimized for large-scale batch predictions with efficient memory management.
 """
 
 import pickle
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import logging
+import time
+from functools import lru_cache
 
 import pandas as pd
 import numpy as np
@@ -22,6 +26,8 @@ import plotly.graph_objects as go
 
 # Configuration
 MODEL_PATH = Path("california_knn_pipeline.pkl")
+CHUNK_SIZE = 10000  # Process data in chunks for memory efficiency
+MAX_PREVIEW_ROWS = 1000  # Limit preview to avoid browser overload
 FEATURE_DESCRIPTIONS = {
     "MedInc": "Median income in block group (in tens of thousands)",
     "HouseAge": "Median age of houses in block group",
@@ -293,13 +299,13 @@ def render_metrics_dashboard(metrics: Dict[str, float]):
 def main():
     st.set_page_config(
         page_title="California Housing Predictor",
-        page_icon="🏘️",
+        page_icon="🏠",
         layout="wide",
         initial_sidebar_state="expanded"
     )
     
     # Header
-    st.title("California Housing Price Predictor")
+    st.title("🏠 California Housing Price Predictor")
     st.markdown(
         """
         **Interactive ML Application** | K-Nearest Neighbors Pipeline  
@@ -375,7 +381,7 @@ def main():
             st.sidebar.error(f"Prediction failed: {e}")
     
     # Main content tabs
-    tab1, tab2, tab3 = st.tabs(["📊 Batch Predictions", "📈 Model Analysis", "ℹ️ About"])
+    tab1, tab2, tab3 = st.tabs(["Batch Predictions", "Model Analysis", "About"])
     
     with tab1:
         st.header("Batch Prediction Interface")
@@ -444,7 +450,7 @@ def main():
                         try:
                             predictions_df = batch_predict(model, df)
                             
-                            st.success(f"✅ Generated {len(predictions_df):,} predictions")
+                            st.success(f"Generated {len(predictions_df):,} predictions")
                             
                             # Display predictions
                             st.subheader("Predictions")
@@ -453,7 +459,7 @@ def main():
                             # Download button
                             csv = predictions_df.to_csv(index=False)
                             st.download_button(
-                                "⬇️ Download Predictions",
+                                "Download Predictions",
                                 csv,
                                 "predictions.csv",
                                 "text/csv",
@@ -489,9 +495,9 @@ def main():
                                         st.metric("Std Residual", f"{metrics['std_residual']:.4f}")
                             
                         except ValueError as e:
-                            st.error(f"❌ Validation Error: {e}")
+                            st.error(f"Validation Error: {e}")
                         except Exception as e:
-                            st.error(f"❌ Prediction Error: {e}")
+                            st.error(f"Prediction Error: {e}")
                             logger.exception("Batch prediction failed")
                 
             except Exception as e:
@@ -504,7 +510,7 @@ def main():
             st.markdown("Analyze feature importance using permutation-based methods.")
             
             compute_importance = st.checkbox(
-                "🧮 Compute Feature Importance",
+                "Compute Feature Importance",
                 help="May take 30-60 seconds for large datasets"
             )
             
@@ -522,7 +528,7 @@ def main():
                         fig_importance = plot_feature_importance(importance_df)
                         st.plotly_chart(fig_importance, use_container_width=True)
                         
-                        with st.expander("📋 Detailed Importance Values"):
+                        with st.expander("Detailed Importance Values"):
                             st.dataframe(importance_df, use_container_width=True)
                     else:
                         st.error("Failed to compute feature importance")
@@ -560,7 +566,7 @@ def main():
         4. Analyze feature importance to understand model behavior
         
         ---
-        *Built with Streamlit, scikit-learn, and Plotly*
+        *Built with Streamlit, scikit-learn, and Plotly by yours truly @aueskinj*
         """)
 
 
