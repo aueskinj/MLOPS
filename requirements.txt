@@ -1,6 +1,8 @@
-pandas      
+pandas
 numpy
 scikit-learn
-matplotlib  
+matplotlib
 seaborn
 flask
+streamlit
+plotly

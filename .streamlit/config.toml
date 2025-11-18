@@ -1,0 +1,13 @@
+[server]
+maxUploadSize = 500          # Maximum file upload size (MB)
+maxMessageSize = 500          # Maximum WebSocket message size (MB)
+enableWebsocketCompression = true
+port = 8501
+address = "0.0.0.0"
+
+[runner]
+fastReruns = true
+postScriptGC = true           # Garbage collection after scripts
+
+[client]
+toolbarMode = "minimal"
